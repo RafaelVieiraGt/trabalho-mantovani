@@ -156,3 +156,53 @@ para ninguém perder tempo pelo caminho errado.
 | `MAIS`, `MENOS`, `VEZES`, `DIVISAO`, `RESTO`, `ATRIBUICAO`, `MENOR`, `MAIOR`, `NAO` | `+`, `-`, `*`, `/`, `%`, `=`, `<`, `>`, `!` | Operadores aritméticos, relacionais e lógicos simples. |
 | `VIRGULA`, `PONTO_VIRGULA`, `ABRE_PAR`, `FECHA_PAR`, `ABRE_CHAVE`, `FECHA_CHAVE`, `ABRE_COLCHETE`, `FECHA_COLCHETE` | `,`, `;`, `(`, `)`, `{`, `}`, `[`, `]` | Símbolos e delimitadores. |
 | `FIM_ARQUIVO` | `""` | Marcador de término do código-fonte. |
+
+
+## Tabela de Tokens — Entrega 1
+
+O analisador léxico reconhece os seguintes tokens:
+
+| Token           | Reconhece                                                  |
+| --------------- | ---------------------------------------------------------- |
+| `FUNCAO`        | `funcao`                                                   |
+| `RETORNE`       | `retorne`                                                  |
+| `SE`            | `se`                                                       |
+| `SENAO`         | `senao`                                                    |
+| `ENQUANTO`      | `enquanto`                                                 |
+| `ESCREVA`       | `escreva`                                                  |
+| `TIPO_INTEIRO`  | `inteiro`                                                  |
+| `TIPO_REAL`     | `real`                                                     |
+| `TIPO_LOGICO`   | `logico`                                                   |
+| `TIPO_TEXTO`    | `texto`                                                    |
+| `TIPO_VAZIO`    | `vazio`                                                    |
+| `LOGICO`        | `verdadeiro` e `falso`                                     |
+| `E`             | `e`                                                        |
+| `OU`            | `ou`                                                       |
+| `NAO`           | `nao`                                                      |
+| `ID`            | Identificadores, como `x`, `contador`, `valor10` e `_temp` |
+| `INTEIRO`       | Números inteiros, como `10`, `0` e `123`                   |
+| `REAL`          | Números reais, como `3.14` e `10.5`                        |
+| `TEXTO`         | Textos entre aspas, como `"Ola"`                           |
+| `MAIS`          | `+`                                                        |
+| `MENOS`         | `-`                                                        |
+| `VEZES`         | `*`                                                        |
+| `DIVIDE`        | `/`                                                        |
+| `RESTO`         | `%`                                                        |
+| `IGUAL`         | `==`                                                       |
+| `DIFERENTE`     | `!=`                                                       |
+| `MENOR`         | `<`                                                        |
+| `MENOR_IGUAL`   | `<=`                                                       |
+| `MAIOR`         | `>`                                                        |
+| `MAIOR_IGUAL`   | `>=`                                                       |
+| `ATRIBUI`       | `=`                                                        |
+| `ABRE_PAR`      | `(`                                                        |
+| `FECHA_PAR`     | `)`                                                        |
+| `ABRE_CHAVE`    | `{`                                                        |
+| `FECHA_CHAVE`   | `}`                                                        |
+| `VIRGULA`       | `,`                                                        |
+| `PONTO_VIRGULA` | `;`                                                        |
+| `FIM_ARQUIVO`   | Indica o final do arquivo                                  |
+
+O analisador também ignora espaços em branco e comentários dos tipos `// comentario` e `/* comentario */`.
+
+Para operadores compostos, como `<=`, `>=`, `==` e `!=`, a análise é feita antes dos operadores de um único caractere, evitando que `<=`, por exemplo, seja interpretado como `<` seguido de `=`.
