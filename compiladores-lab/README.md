@@ -143,6 +143,46 @@ para ninguém perder tempo pelo caminho errado.
    comprovante.
 
 
+## Gramática Sintática da MPL (Entrega #2)
+
+```ebnf
+programa       = { funcao } ;
+funcao         = "funcao", tipo_retorno, ID, "(", [ parametros ], ")", bloco ;
+parametros     = parametro, { ",", parametro } ;
+parametro      = tipo, ID ;
+tipo_retorno   = tipo | "vazio" ;
+tipo           = "inteiro" | "real" | "logico" | "texto" ;
+
+bloco          = "{", { comando }, "}" ;
+comando        = declaracao | atribuicao | chamada, ";"
+               | condicional | repeticao | escrita | retorno | bloco ;
+declaracao     = tipo, ID, [ "=", expressao ], ";" ;
+atribuicao     = ID, "=", expressao, ";" ;
+condicional    = "se", "(", expressao, ")", bloco,
+                 [ "senao", bloco ] ;
+repeticao      = "enquanto", "(", expressao, ")", bloco ;
+escrita        = "escreva", "(", expressao, ")", ";" ;
+retorno        = "retorne", [ expressao ], ";" ;
+chamada        = ID, "(", [ argumentos ], ")" ;
+argumentos     = expressao, { ",", expressao } ;
+
+expressao      = disjuncao ;
+disjuncao      = conjuncao, { "ou", conjuncao } ;
+conjuncao      = igualdade, { "e", igualdade } ;
+igualdade      = relacional, { ( "==" | "!=" ), relacional } ;
+relacional     = aditiva, { ( "<" | "<=" | ">" | ">=" ), aditiva } ;
+aditiva        = multiplicativa, { ( "+" | "-" ), multiplicativa } ;
+multiplicativa = unaria, { ( "*" | "/" | "%" ), unaria } ;
+unaria         = ( "nao" | "-" ), unaria | primaria ;
+primaria       = INTEIRO | REAL | LOGICO | TEXTO | chamada | ID
+               | "(", expressao, ")" ;
+```
+
+A precedência é codificada pelas produções encadeadas de `disjuncao` até
+`primaria`: cada nível chama o seguinte, mais forte. Os operadores binários
+são acumulados da esquerda para a direita; os unários chamam `unaria` de
+forma recursiva à direita.
+
 ## Tabela de Tokens da Linguagem MPL (Entrega #1)
 
 | Tipo de Token | Exemplo / Lexema | Descrição |
