@@ -246,3 +246,113 @@ O analisador léxico reconhece os seguintes tokens:
 O analisador também ignora espaços em branco e comentários dos tipos `// comentario` e `/* comentario */`.
 
 Para operadores compostos, como `<=`, `>=`, `==` e `!=`, a análise é feita antes dos operadores de um único caractere, evitando que `<=`, por exemplo, seja interpretado como `<` seguido de `=`.
+
+## Escopos na tabela de símbolos (Entrega #3)
+
+Cada escopo é um objeto `Escopo` com um dicionário de símbolos (que preserva a
+ordem de declaração) e um ponteiro para o escopo pai — ou seja, um
+**dicionário encadeado**, percorrido como uma **pilha** durante a análise: ao
+abrir um bloco o escopo atual passa a ser o novo, ao fechar volta para o pai.
+A busca de um nome sobe a cadeia de pais, então o sombreamento sai de graça: o
+escopo mais interno que tem o nome vence. Escolhemos isso porque nenhum escopo
+é descartado ao fechar — todos ficam numa lista na ordem em que abriram, que é
+exatamente o que o `--tabela` precisa despejar e o que a Entrega 4 usa para
+dar a cada variável o seu lugar no registro de ativação (variáveis sombreadas
+viram `x.2`, `x.3`, … no código intermediário, com o número do escopo).
+
+A análise faz duas passadas: a primeira só coleta as assinaturas das funções
+(para permitir chamar uma função antes dela aparecer no arquivo); a segunda
+percorre os corpos, confere os tipos e marca na árvore onde entra a conversão
+`inteiro` → `real`.
+
+## Código intermediário, `.mplb` e VM (Entrega #4)
+
+```
+fonte .mpl → árvore → tabela → três endereços (--ir) → .mplb (texto) → VM
+```
+
+**Três endereços** (`./compilar --ir programa.mpl`): no máximo um operador por
+linha, com temporários `t0, t1, …` e rótulos `L0, L1, …`. Exemplo do fatorial:
+
+```
+funcao fatorial inteiro (n inteiro)
+  t0 = n <= 1
+  seFalso t0 desvie L0
+  retorne 1
+  desvie L1
+L0:
+  t1 = n - 1
+  param t1
+  t2 = chama fatorial, 1
+  t3 = n * t2
+  retorne t3
+L1:
+fim
+```
+
+**O `.mplb`** é texto, uma instrução por linha, para uma **máquina de pilha**.
+Cada função vira um bloco `.funcao <nome> <nº parâmetros> <nº locais>` …
+`.fim`; as linhas `.local <posição> <nome>` só documentam de onde veio cada
+posição. Parâmetros, variáveis e temporários são posições `0, 1, 2…` do
+**registro de ativação** da chamada (os parâmetros ocupam as primeiras).
+Cada instrução de três endereços vira poucas de pilha — `t3 = n * t2` vira
+`CARREGA 0`, `CARREGA 2`, `MULTIPLICA`, `GUARDA 3`.
+
+**A VM** (`mplc/vm.py`) é um laço, não uma função recursiva: tem uma pilha de
+operandos e uma pilha de registros de ativação. Cada `CHAMA` cria um registro
+novo, com os **seus** locais, o seu ponto de execução e a linha do comando que
+está rodando — é isso que faz a recursão funcionar. Divisão/resto por zero e
+mais de 100 000 chamadas ativas (estouro de pilha) viram `erro execucao` na
+linha do comando, com código de saída 2.
+
+### Conjunto de instruções da VM
+
+Notação: `… a b → … r` significa que a instrução tira `b` (topo) e `a` da
+pilha de operandos e empilha `r`.
+
+| Instrução | O que faz com a pilha |
+|---|---|
+| `EMPILHA_INTEIRO n` | `… → … n` — empilha o inteiro `n` |
+| `EMPILHA_REAL x` | `… → … x` — empilha o real `x` |
+| `EMPILHA_LOGICO v` | `… → … v` — empilha `verdadeiro` ou `falso` |
+| `EMPILHA_TEXTO "s"` | `… → … s` — empilha o texto (escapes `\n \t \" \\` interpretados) |
+| `CARREGA i` | `… → … local[i]` — empilha a posição `i` do registro de ativação atual |
+| `GUARDA i` | `… v → …` — desempilha e grava na posição `i` do registro atual |
+| `SOMA` | `… a b → … a+b` — soma números ou concatena textos |
+| `SUBTRAI` | `… a b → … a-b` |
+| `MULTIPLICA` | `… a b → … a*b` |
+| `DIVIDE` | `… a b → … a/b` — entre inteiros, truncada em direção a zero; `b = 0` é erro de execução |
+| `RESTO` | `… a b → … a%b` — com o sinal do dividendo (`-7 % 3 = -1`); `b = 0` é erro de execução |
+| `NEGA` | `… a → … -a` — menos unário |
+| `IGUAL` | `… a b → … (a == b)` |
+| `DIFERENTE` | `… a b → … (a != b)` |
+| `MENOR` | `… a b → … (a < b)` |
+| `MENOR_IGUAL` | `… a b → … (a <= b)` |
+| `MAIOR` | `… a b → … (a > b)` |
+| `MAIOR_IGUAL` | `… a b → … (a >= b)` |
+| `E` | `… a b → … (a e b)` — os dois lados já foram avaliados (sem curto-circuito) |
+| `OU` | `… a b → … (a ou b)` |
+| `NAO` | `… a → … (nao a)` |
+| `PARA_REAL` | `… a → … real(a)` — a conversão implícita `inteiro` → `real` |
+| `DESVIA L` | `… → …` — continua no rótulo `L` |
+| `DESVIA_SE_FALSO L` | `… c → …` — desempilha `c`; se for `falso`, continua no rótulo `L` |
+| `CHAMA f n` | `… a1 … an → …` — desempilha os `n` argumentos para os locais `0..n-1` de um registro de ativação novo e passa a executar `f` |
+| `RETORNA` | `… v → … v` — descarta o registro atual e volta para quem chamou; o valor `v` fica no topo para o chamador |
+| `RETORNA_VAZIO` | `… → …` — descarta o registro atual e volta para quem chamou, sem valor |
+| `ESCREVA` | `… v → …` — desempilha e imprime no formato da seção 4.5 (`real` com 6 casas, `logico` como `verdadeiro`/`falso`) |
+| `LINHA l c` | `… → …` — não mexe na pilha; registra a linha/coluna do comando atual, usada nas mensagens de erro de execução |
+
+A execução começa por `principal` e termina quando ela retorna.
+
+### Programa do grupo
+
+[`exemplos/vitrine.mpl`](exemplos/vitrine.mpl) resolve quatro problemas
+clássicos — Torre de Hanói (recursão em função `vazio`), raiz quadrada pelo
+método de Newton (`real` e conversão de `inteiro`), números em binário
+(recursão que devolve `texto`) e a sequência de Collatz (laços e escopos
+aninhados). A saída esperada está em
+[`exemplos/vitrine.saida`](exemplos/vitrine.saida).
+
+```bash
+./compilar exemplos/vitrine.mpl && ./executar exemplos/vitrine.mplb
+```

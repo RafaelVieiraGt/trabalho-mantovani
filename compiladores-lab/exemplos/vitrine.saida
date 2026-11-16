@@ -1,0 +1,20 @@
+Torre de Hanoi com 3 discos:
+  disco 1: A -> C
+  disco 2: A -> B
+  disco 1: C -> B
+  disco 3: A -> C
+  disco 1: B -> A
+  disco 2: B -> C
+  disco 1: A -> C
+Raiz quadrada pelo metodo de Newton:
+1.414214
+12.000000
+Numeros em binario:
+  1
+  100
+  10000
+  1000000
+Collatz: o numero ate 30 com o caminho mais longo
+27
+111
+verdadeiro

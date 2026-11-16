@@ -282,7 +282,7 @@ class _Analisador:
                 valor = f'{float(valor):.6f}'
             return self.no(
                 f'literal {tipo} {valor}', token,
-                tipo=tipo, valor=valor,
+                tipo=tipo, valor=valor, lexema=token.lexema,
             )
         if token.tipo == 'ID':
             self.indice += 1
