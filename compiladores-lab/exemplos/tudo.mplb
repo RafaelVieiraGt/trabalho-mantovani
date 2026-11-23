@@ -1,0 +1,161 @@
+; MPL bytecode — maquina de pilha. Comeca por principal.
+
+.funcao mdc 2 5
+.local 0 a
+.local 1 b
+.local 2 t0
+.local 3 t
+.local 4 t1
+  LINHA 5 3
+L0:
+  LINHA 5 3
+  CARREGA 1
+  EMPILHA_INTEIRO 0
+  DIFERENTE
+  GUARDA 2
+  CARREGA 2
+  DESVIA_SE_FALSO L1
+  LINHA 6 5
+  CARREGA 1
+  GUARDA 3
+  LINHA 7 5
+  CARREGA 0
+  CARREGA 1
+  RESTO
+  GUARDA 4
+  CARREGA 4
+  GUARDA 1
+  LINHA 8 5
+  CARREGA 3
+  GUARDA 0
+  DESVIA L0
+L1:
+  LINHA 10 3
+  CARREGA 0
+  RETORNA
+.fim
+
+.funcao areaCirculo 1 3
+.local 0 raio
+.local 1 t0
+.local 2 t1
+  LINHA 14 3
+  EMPILHA_REAL 3.141593
+  CARREGA 0
+  MULTIPLICA
+  GUARDA 1
+  CARREGA 1
+  CARREGA 0
+  MULTIPLICA
+  GUARDA 2
+  CARREGA 2
+  RETORNA
+.fim
+
+.funcao sinal 1 3
+.local 0 n
+.local 1 t0
+.local 2 t1
+  LINHA 18 3
+  CARREGA 0
+  EMPILHA_INTEIRO 0
+  MAIOR
+  GUARDA 1
+  CARREGA 1
+  DESVIA_SE_FALSO L2
+  LINHA 19 5
+  EMPILHA_TEXTO "positivo"
+  RETORNA
+  DESVIA L3
+L2:
+  LINHA 21 5
+  CARREGA 0
+  EMPILHA_INTEIRO 0
+  MENOR
+  GUARDA 2
+  CARREGA 2
+  DESVIA_SE_FALSO L4
+  LINHA 22 7
+  EMPILHA_TEXTO "negativo"
+  RETORNA
+  DESVIA L5
+L4:
+  LINHA 24 7
+  EMPILHA_TEXTO "zero"
+  RETORNA
+L5:
+L3:
+.fim
+
+.funcao principal 0 10
+.local 0 t0
+.local 1 t1
+.local 2 t2
+.local 3 t3
+.local 4 t4
+.local 5 i
+.local 6 t5
+.local 7 t6
+.local 8 t7
+.local 9 t8
+  LINHA 30 3
+  EMPILHA_INTEIRO 48
+  EMPILHA_INTEIRO 18
+  CHAMA mdc 2
+  GUARDA 0
+  CARREGA 0
+  ESCREVA
+  LINHA 31 3
+  EMPILHA_REAL 2.0
+  CHAMA areaCirculo 1
+  GUARDA 1
+  CARREGA 1
+  ESCREVA
+  LINHA 32 3
+  EMPILHA_INTEIRO 5
+  NEGA
+  GUARDA 2
+  CARREGA 2
+  CHAMA sinal 1
+  GUARDA 3
+  CARREGA 3
+  ESCREVA
+  LINHA 33 3
+  EMPILHA_INTEIRO 0
+  CHAMA sinal 1
+  GUARDA 4
+  CARREGA 4
+  ESCREVA
+  LINHA 34 3
+  EMPILHA_INTEIRO 1
+  GUARDA 5
+  LINHA 35 3
+L6:
+  LINHA 35 3
+  CARREGA 5
+  EMPILHA_INTEIRO 3
+  MENOR_IGUAL
+  GUARDA 6
+  CARREGA 6
+  DESVIA_SE_FALSO L7
+  LINHA 36 5
+  CARREGA 5
+  CHAMA sinal 1
+  GUARDA 7
+  EMPILHA_TEXTO "volta "
+  CARREGA 7
+  SOMA
+  GUARDA 8
+  CARREGA 8
+  ESCREVA
+  LINHA 37 5
+  CARREGA 5
+  EMPILHA_INTEIRO 1
+  SOMA
+  GUARDA 9
+  CARREGA 9
+  GUARDA 5
+  DESVIA L6
+L7:
+  RETORNA_VAZIO
+.fim
