@@ -1,0 +1,8 @@
+; MPL bytecode — maquina de pilha. Comeca por principal.
+
+.funcao principal 0 0
+  LINHA 5 3
+  EMPILHA_TEXTO "ola, mundo"
+  ESCREVA
+  RETORNA_VAZIO
+.fim
